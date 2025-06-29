@@ -71,11 +71,12 @@ fn gather_filtered_deltas_from_diff<'a>(diff: &'a Diff<'a>) -> Vec<DiffDelta<'a>
 fn create_diff_from_arguments(repo: &Repository) -> Diff {
 	let mut diff_opts = DiffOptions::new();
 	diff_opts.include_untracked(true);
-	
-	// let a = repo.find_commit_by_prefix("64c3f3a87132840c83541b1d10a6cff031fd7800").unwrap().tree().unwrap();
-	// let b = repo.find_commit_by_prefix("77cd7307e14adc9fb18c6473e65f05093bb3e9f4").unwrap().tree().unwrap();
-	// repo.diff_tree_to_tree(Some(&a), Some(&b), None).unwrap()
-	
+	diff_opts.recurse_untracked_dirs(true);
 	let head_commit = repo.head().unwrap().peel_to_commit().unwrap().tree().unwrap();
 	repo.diff_tree_to_workdir_with_index(Some(&head_commit), Some(&mut diff_opts)).unwrap()
+	
+	// let commits = ("00e600757bc5984fde1dc5a1aea358150d5a4433", "9e83dcf63dab7ab17af8d85a87f8491e91407ede");
+	// let a = repo.find_commit_by_prefix(commits.0).unwrap().tree().unwrap();
+	// let b = repo.find_commit_by_prefix(commits.1).unwrap().tree().unwrap();
+	// repo.diff_tree_to_tree(Some(&a), Some(&b), None).unwrap()
 }
