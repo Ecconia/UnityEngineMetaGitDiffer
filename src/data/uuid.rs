@@ -1,7 +1,7 @@
+use git2::{Oid, Repository};
 use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::Path;
-use git2::{Oid, Repository};
 
 // Unity Unique Identifier (lel)
 #[derive(Copy, Clone)]
@@ -31,7 +31,7 @@ impl Uuid {
 		let mut bytes = [0u8; 16];
 		for (index, item) in bytes.iter_mut().enumerate() {
 			let input_index = index << 1;
-			*item = match u8::from_str_radix(&input[input_index..(input_index + 1)], 16) {
+			*item = match u8::from_str_radix(&input[input_index..=(input_index + 1)], 16) {
 				Ok(v) => v,
 				Err(_) => return None,
 			}
@@ -44,14 +44,14 @@ impl Uuid {
 	pub fn from_disk_or_panic(path: &Path) -> Uuid {
 		let text = fs::read_to_string(path).unwrap();
 		let uuid_text = Self::from_meta_content(&text).unwrap_or_else(|| panic!("Did not find UUID for path {}", path.display()));
-		Uuid::from(&uuid_text).unwrap_or_else(|| panic!("Could not convert UUID '{uuid_text}' in file '{}'", path.display()))
+		Uuid::from(uuid_text).unwrap_or_else(|| panic!("Could not convert UUID '{uuid_text}' in file '{}'", path.display()))
 	}
 	
 	pub fn from_blob_or_panic(repo: &Repository, hash: Oid) -> Uuid {
 		let blob = repo.find_blob(hash).unwrap();
 		let text = String::from_utf8(blob.content().to_owned()).unwrap();
 		let uuid_text = Self::from_meta_content(&text).unwrap_or_else(|| panic!("Did not find UUID for blob {hash}"));
-		Uuid::from(&uuid_text).unwrap_or_else(|| panic!("Could not convert UUID '{uuid_text}' in blob {hash}"))
+		Uuid::from(uuid_text).unwrap_or_else(|| panic!("Could not convert UUID '{uuid_text}' in blob {hash}"))
 	}
 	
 	fn from_meta_content(text: &str) -> Option<&str> {
